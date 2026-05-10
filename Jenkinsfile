@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        HARBOR_URL      = 'https://harbor.local:31941'  // 改为你的 Harbor 地址
+        HARBOR_URL      = 'harbor.local:31941'  // 改为你的 Harbor 地址
         HARBOR_PROJECT  = 'image'                  // 你的 Harbor 项目名
         K8S_NAMESPACE   = 'default'                // 部署到的命名空间
         IMAGE_NAME      = "${HARBOR_URL}/${HARBOR_PROJECT}/myapp:${BUILD_NUMBER}"
