@@ -46,6 +46,11 @@ spec:
 """
                 }
             }
+
+            options {
+                skipDefaultCheckout()  # 关键：阻止此阶段自动从GitHub拉取代码
+            }
+            
             steps {
                 unstash 'source'
                 container('sonar-scanner') {
