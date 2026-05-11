@@ -1,5 +1,5 @@
 pipeline {
-    agent none   // 不指定全局 agent，每个 stage 单独定义
+    agent none
 
     environment {
         HARBOR_URL      = 'harbor.local:31941'
@@ -10,9 +10,10 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            agent any   // 使用 Jenkins 控制器节点拉代码
+            agent any
             steps {
                 checkout scm
+                stash includes: '**/*', name: 'source', useDefaultExcludes: false
             }
         }
 
@@ -54,6 +55,7 @@ spec:
                 }
             }
             steps {
+                unstash 'source'
                 container('kaniko') {
                     sh """
                         /kaniko/executor \
@@ -67,9 +69,9 @@ spec:
         }
 
         stage('Deploy to K8s') {
-            agent any   // 控制器节点必须有 kubectl 和 kubeconfig 凭证
+            agent any
             steps {
-                withKubeConfig([credentialsId: 'k8s-kubeconfig']) {
+                withKubeConfig([credentialsId: 'k8s-cred']) {
                     sh """
                         sed -i 's|IMAGE_PLACEHOLDER|${IMAGE_NAME}|' deploy/k8s-deployment.yaml
                         kubectl apply -n ${K8S_NAMESPACE} -f deploy/k8s-deployment.yaml
@@ -83,9 +85,6 @@ spec:
             agent any
             steps {
                 script {
-                    // 请根据实际 Service 暴露情况修改地址
-                    // 例如 NodePort: http://<任一节点IP>:30080/health
-                    // 或者用 kubectl 动态获取
                     def nodeIP = sh(script: "kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}'", returnStdout: true).trim()
                     def nodePort = sh(script: "kubectl get svc myapp-svc -n ${K8S_NAMESPACE} -o jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
                     sh "curl -sf http://${nodeIP}:${nodePort}/health || exit 1"
