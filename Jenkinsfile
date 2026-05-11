@@ -90,6 +90,8 @@ metadata:
   labels:
     app: kubectl-deployer
 spec:
+  securityContext:
+    runAsUser: 0  # 保持统一
   containers:
   - name: kubectl
     image: harbor.local:31941/image/alpine/k8s:1.27.8   # 同时带 kubectl 和 curl
@@ -130,6 +132,8 @@ metadata:
   labels:
     app: kubectl-smoke
 spec:
+  securityContext:
+    runAsUser: 0  # 保持统一
   containers:
   - name: kubectl
     image: harbor.local:31941/image/alpine/k8s:1.27.8
