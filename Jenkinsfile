@@ -92,7 +92,7 @@ metadata:
 spec:
   containers:
   - name: kubectl
-    image: alpine/k8s:1.27.8   # 同时带 kubectl 和 curl
+    image: harbor.local:31941/image/alpine/k8s:1.27.8   # 同时带 kubectl 和 curl
     command:
     - sleep
     args:
@@ -132,7 +132,7 @@ metadata:
 spec:
   containers:
   - name: kubectl
-    image: alpine/k8s:1.27.8
+    image: harbor.local:31941/image/alpine/k8s:1.27.8
     command:
     - sleep
     args:
