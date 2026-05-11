@@ -27,6 +27,10 @@ metadata:
   labels:
     app: kaniko-builder
 spec:
+  hostAliases:
+  - ip: "192.168.1.220"          # ← 替换为你的 Harbor 节点 IP
+    hostnames:
+    - "harbor.local"
   securityContext:
     runAsUser: 0   # 以 root 运行所有容器，避免权限问题
   containers:
