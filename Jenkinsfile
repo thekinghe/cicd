@@ -83,13 +83,13 @@ spec:
         stage('Deploy to K8s') {
             agent any
             steps {
-                withKubeConfig([credentialsId: 'k8s-cred']) {
+                
                     sh """
                         sed -i 's|IMAGE_PLACEHOLDER|${IMAGE_NAME}|' deploy/k8s-deployment.yaml
                         kubectl apply -n ${K8S_NAMESPACE} -f deploy/k8s-deployment.yaml
                         kubectl rollout status deployment/myapp -n ${K8S_NAMESPACE} --timeout=120s
                     """
-                }
+                
             }
         }
 
