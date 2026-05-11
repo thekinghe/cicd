@@ -17,6 +17,45 @@ pipeline {
             }
         }
 
+        // 新增：代码质量扫描
+        stage('SonarQube Scan') {
+            agent {
+                kubernetes {
+                    yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: sonar-scanner
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+  - name: sonar-scanner
+    image: harbor.local:31941/image/sonar-scanner-cli:latest   # 已推送到 Harbor
+    command:
+    - sleep
+    args:
+    - '99999'
+  - name: jnlp
+    image: jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+"""
+                }
+            }
+            steps {
+                unstash 'source'
+                container('sonar-scanner') {
+                    withSonarQubeEnv('sonar-server') {
+                        sh 'sonar-scanner -Dsonar.projectKey=myapp'
+                    }
+                }
+            }
+        }
+        
         stage('Build & Push Image') {
             agent {
                 kubernetes {
