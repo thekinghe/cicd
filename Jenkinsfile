@@ -10,7 +10,7 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            agent any
+            agent any   // 主节点拉代码（可访问 GitHub）
             steps {
                 checkout scm
                 stash includes: '**/*', name: 'source', useDefaultExcludes: false
@@ -27,6 +27,8 @@ metadata:
   labels:
     app: kaniko-builder
 spec:
+  securityContext:
+    runAsUser: 0   # 以 root 运行所有容器，避免权限问题
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
@@ -41,6 +43,12 @@ spec:
     - name: docker-config
       mountPath: /kaniko/.docker/
       readOnly: true
+  - name: jnlp
+    image: jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
   volumes:
   - name: harbor-ca
     configMap:
